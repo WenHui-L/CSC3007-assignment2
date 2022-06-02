@@ -1,0 +1,92 @@
+<html>
+
+<head>
+  <title>Assignment 1</title>
+  <script src="jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="./bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" />
+  <script src="./bootstrap-5.2.0-beta1-dist/js/bootstrap.min.js"></script>
+
+  <style>
+    body {
+      background-image: linear-gradient(to left bottom, #85CEC9, #ddb7f4, #81EAE6);
+    }
+
+
+    .background_row{
+      background-color: lightcoral;
+      color : black;
+    }
+  
+  </style>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      var data_array = new Array();
+      $(document).ready(function () {
+        let url_api = 'https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf&q=2020'
+        $.ajax({
+          url: url_api,
+          contentType: "application/json",
+          dataType: 'json',
+          success: function (result) {
+            result_state = result.result.records
+            $.each(result_state, function (key, value) {
+              offence_num = value.value
+              offence_type = value.level_2
+              data_form = {offence_num : offence_num , offence : offence_type}
+              data_array.push(data_form);
+            });
+            
+        var margin = {top: 20, right: 10, bottom: 40, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+    
+    var chart = d3.select("#chart")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+    var xScale = d3.scaleBand()
+        .domain(data_array.map(function(d) { return d.offence; }))
+        .rangeRound([0, width])
+        .padding(0.1);
+    
+    var yScale = d3.scaleLinear()
+        .domain([0, 17000])
+        .rangeRound([height, 0]);
+    
+    chart.append("g")
+        .attr("class", "axis axis-x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xScale));
+    
+    chart.append("g")
+        .attr("class", "axis axis-y")
+        .call(d3.axisLeft(yScale).ticks(10));
+
+    let colorScale = d3.scaleLinear()
+    .domain([0, 300])
+    .range([0,1]);
+    
+    
+    // Append rectangles
+    chart.selectAll("rect")
+        .data(data_array)
+        .enter()
+        .append("rect")
+        .attr("x", function(d) {return xScale(d.offence);})
+        .attr("y", function(d) { return yScale(d.offence_num); })
+        .attr("width", function(d) {return xScale.bandwidth();})
+        .attr("height", function(d) { return height - yScale(d.offence_num); })
+        .attr("fill", d => d3.interpolateCubehelixDefault(colorScale(d.r)))
+        .attr("class", "svgRect");
+          }
+        })
+      });
+    </script>
+
+</head>
+
+<body>
+  <svg id="chart" viewBox="0 0 960 530"></svg>
+</body>
+
+</html>
