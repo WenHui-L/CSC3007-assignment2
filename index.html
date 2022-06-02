@@ -3,8 +3,6 @@
 <head>
   <title>Assignment 1</title>
   <script src="jquery-3.6.0.min.js"></script>
-  <link rel="stylesheet" href="./bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" />
-  <script src="./bootstrap-5.2.0-beta1-dist/js/bootstrap.min.js"></script>
 
   <style>
     body {
@@ -63,21 +61,32 @@
         .call(d3.axisLeft(yScale).ticks(10));
 
     let colorScale = d3.scaleLinear()
-    .domain([0, 300])
-    .range([0,1]);
-    
+        .domain([0, 300])
+        .range([0,1]);
     
     // Append rectangles
     chart.selectAll("rect")
         .data(data_array)
         .enter()
         .append("rect")
+        .attr("fill", d => d3.interpolateRainbow(colorScale(d.offence_num)))
         .attr("x", function(d) {return xScale(d.offence);})
         .attr("y", function(d) { return yScale(d.offence_num); })
         .attr("width", function(d) {return xScale.bandwidth();})
         .attr("height", function(d) { return height - yScale(d.offence_num); })
-        .attr("fill", d => d3.interpolateCubehelixDefault(colorScale(d.r)))
-        .attr("class", "svgRect");
+        .attr("class", "svgRect")
+        
+
+        .on("mouseover", (event, d) => {
+          d3.select(event.currentTarget)
+          .attr("stroke", "pink")
+          .attr("stroke-width", 2);
+      }) 
+      .on("mouseout", (event, d) => {
+          d3.select(event.currentTarget)
+          .attr("stroke", "none");
+      })
+  
           }
         })
       });
